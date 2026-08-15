@@ -1,0 +1,11 @@
+<resources>
+    <color name="honor_blue">#247CFF</color>
+    <color name="honor_ink">#1A1A1A</color>
+    <color name="honor_bg">#F7F7F8</color>
+    <style name="Theme.HonorShare" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/honor_bg</item>
+        <item name="android:navigationBarColor">@color/honor_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">@color/honor_bg</item>
+    </style>
+</resources>

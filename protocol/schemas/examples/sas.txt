@@ -1,0 +1,5 @@
+fingerprintA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+fingerprintB=cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+authNonce=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+sas=693253
+display=693 253

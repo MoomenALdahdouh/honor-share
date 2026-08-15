@@ -1,0 +1,11 @@
+{
+  "v": 1,
+  "type": "ERROR",
+  "msgId": "66666666-6666-4666-8666-666666666666",
+  "ts": 1700000002000,
+  "payload": {
+    "code": "UNSUPPORTED_VERSION",
+    "transferId": null,
+    "fileId": null
+  }
+}

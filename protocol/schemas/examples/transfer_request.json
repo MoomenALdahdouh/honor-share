@@ -1,0 +1,19 @@
+{
+  "v": 1,
+  "type": "TRANSFER_REQUEST",
+  "msgId": "33333333-3333-4333-8333-333333333333",
+  "ts": 1700000001000,
+  "payload": {
+    "transferId": "44444444-4444-4444-8444-444444444444",
+    "files": [
+      {
+        "fileId": "55555555-5555-4555-8555-555555555555",
+        "name": "photo.jpg",
+        "size": 4390000,
+        "mimeType": "image/jpeg",
+        "relativePath": "photo.jpg"
+      }
+    ],
+    "totalBytes": 4390000
+  }
+}

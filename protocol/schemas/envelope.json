@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://honor.share/protocol/envelope.json",
+  "title": "HONOR Share control envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "type", "msgId", "ts", "payload"],
+  "properties": {
+    "v": { "type": "integer", "const": 1 },
+    "type": {
+      "type": "string",
+      "enum": [
+        "HELLO",
+        "HELLO_ACK",
+        "AUTH_CHALLENGE",
+        "AUTH_RESPONSE",
+        "TRANSFER_REQUEST",
+        "TRANSFER_ACCEPTED",
+        "TRANSFER_REJECTED",
+        "FILE_START",
+        "FILE_PROGRESS",
+        "FILE_COMPLETE",
+        "FILE_RESUME",
+        "TRANSFER_PAUSE",
+        "TRANSFER_COMPLETE",
+        "TRANSFER_CANCELLED",
+        "ERROR"
+      ]
+    },
+    "msgId": { "type": "string", "format": "uuid" },
+    "ts": { "type": "integer", "minimum": 0 },
+    "payload": { "type": "object" }
+  }
+}

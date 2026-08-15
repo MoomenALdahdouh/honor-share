@@ -1,0 +1,50 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Android
+android/.gradle/
+android/build/
+android/**/build/
+android/local.properties
+android/.cxx/
+*.apk
+*.aab
+*.ap_
+captures/
+*.hprof
+
+# Kotlin
+.kotlin/
+
+# macOS / Swift
+macos/.build/
+macos/.swiftpm/
+macos/*.xcodeproj/xcuserdata/
+macos/*.xcworkspace/xcuserdata/
+DerivedData/
+HONORShare.app/
+*.app
+
+# Secrets
+*.jks
+*.keystore
+key.properties
+!android/debug.keystore
+
+# Tests / coverage
+*.exec
+coverage/
+xcresult/
+
+# Cursor / local agent
+.cursor/
+
+# Logs
+*.log
