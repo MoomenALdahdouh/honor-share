@@ -43,22 +43,41 @@ struct QrScannerSheet: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            HStack {
-                Button("Back", action: onCancel)
-                Spacer()
-            }
-            Text("Scan a HONOR Share QR code")
+            Text("Scan a Direct Share QR code")
                 .font(.title2.weight(.semibold))
             Text("Point this camera at the QR code on your phone.")
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            QrCameraRepresentable(onCode: onCode)
-                .frame(minWidth: 420, minHeight: 280)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+            cameraBody
             Button("Cancel", action: onCancel)
+                .keyboardShortcut(.cancelAction)
         }
         .padding(24)
         .frame(width: 520, height: 480)
+    }
+
+    @ViewBuilder
+    private var cameraBody: some View {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        if status == .denied || status == .restricted {
+            VStack(spacing: 12) {
+                Spacer()
+                Text("Camera access is off. Allow it in System Settings to scan a QR code.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                Button("Open System Settings") {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                Spacer()
+            }
+            .frame(minWidth: 420, minHeight: 280)
+        } else {
+            QrCameraRepresentable(onCode: onCode)
+                .frame(minWidth: 420, minHeight: 280)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
     }
 }
 
@@ -122,7 +141,9 @@ final class QrCameraView: NSView, AVCaptureVideoDataOutputSampleBufferDelegate {
         let request = VNDetectBarcodesRequest { [weak self] request, _ in
             guard let self, !self.found else { return }
             let payload = (request.results as? [VNBarcodeObservation])?.first(where: { $0.symbology == .qr })?.payloadStringValue
-            guard let payload, ShareLink.parse(payload) != nil else { return }
+            guard let payload else { return }
+            let valid = PackageInvitation.parse(payload) != nil || ShareLink.parse(payload) != nil
+            guard valid else { return }
             self.found = true
             DispatchQueue.main.async { self.onCode?(payload) }
         }

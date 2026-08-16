@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "HONOR Share" : { "localizations" : { "tr" : { "stringUnit" : { "state" : "translated", "value" : "HONOR Share" } }, "ar" : { "stringUnit" : { "state" : "translated", "value" : "HONOR Share" } } } },
+    "Direct Share" : { "localizations" : { "tr" : { "stringUnit" : { "state" : "translated", "value" : "Direct Share" } }, "ar" : { "stringUnit" : { "state" : "translated", "value" : "Direct Share" } } } },
     "Ready" : { "localizations" : { "tr" : { "stringUnit" : { "state" : "translated", "value" : "Hazır" } }, "ar" : { "stringUnit" : { "state" : "translated", "value" : "جاهز" } } } },
     "No phone connected" : { "localizations" : { "tr" : { "stringUnit" : { "state" : "translated", "value" : "Telefon bağlı değil" } }, "ar" : { "stringUnit" : { "state" : "translated", "value" : "لا يوجد هاتف متصل" } } } }
   },

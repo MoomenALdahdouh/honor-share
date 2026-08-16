@@ -109,6 +109,7 @@ struct HonorShareCheck {
         check("invite matches txt code", ProtocolConstants.matchesInviteCode("858607", inviteCode: "858607", name: "Honor 200", id: "uuid"))
         check("invite does not match digits in name", !ProtocolConstants.matchesInviteCode("858607", inviteCode: nil, name: "Honor 200", id: "abc858607def"))
         check("receive subfolder", ProtocolConstants.receiveSubfolder(peerName: "Honor 200", now: Date(timeIntervalSince1970: 1_787_000_000)).hasSuffix("/Honor 200"))
+        check("receive batch folder", ProtocolConstants.receiveSubfolder(peerName: "Honor 200", now: Date(timeIntervalSince1970: 1_787_000_000), fileCount: 3).contains("_"))
         check("receive subfolder sanitizes slash", !ProtocolConstants.receiveSubfolder(peerName: "a/b").contains("a/b"))
 
         do {

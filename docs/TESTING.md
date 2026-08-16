@@ -4,6 +4,8 @@
 
 ```bash
 cd android && ./gradlew :protocol:test
+```
+
 Command Line Tools do not ship XCTest. Protocol checks run with:
 
 ```bash
@@ -46,7 +48,7 @@ E. Select files → cancel before send → no partials
 
 ## Physical devices
 
-Do not treat discovery or multi-gigabyte transfers as verified until a real HONOR phone and Mac on the same Wi-Fi have completed:
+Do not treat discovery or multi-gigabyte transfers as verified until a real Android phone and Mac on the same Wi-Fi have completed:
 
 - 10+ mixed files both directions
 - SHA-256 of each received file

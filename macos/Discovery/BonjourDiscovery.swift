@@ -105,7 +105,7 @@ public final class BonjourDiscovery: ObservableObject {
                     serviceName = name
                 }
                 var id = serviceName
-                var display = serviceName.isEmpty ? "HONOR Share" : serviceName
+                var display = serviceName.isEmpty ? "Direct Share" : serviceName
                 var os = "unknown"
                 var invite = ProtocolConstants.inviteCode(fromServiceName: serviceName)
                 var host: String?

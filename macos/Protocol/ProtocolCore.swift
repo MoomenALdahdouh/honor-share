@@ -65,7 +65,14 @@ public enum ProtocolConstants {
     public static let partialSuffix = ".honor-share-partial"
     public static let receiveFolder = "HONOR Share"
 
-    public static func receiveSubfolder(peerName: String, now: Date = Date()) -> String {
+    public static func batchFolder(now: Date = Date()) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        return formatter.string(from: now)
+    }
+
+    public static func receiveSubfolder(peerName: String, now: Date = Date(), fileCount: Int = 1) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
@@ -75,7 +82,8 @@ public enum ProtocolConstants {
             .replacingOccurrences(of: ":", with: "-")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let folder = cleaned.isEmpty ? "Device" : String(cleaned.prefix(40))
-        return "\(day)/\(folder)"
+        if fileCount <= 1 { return "\(day)/\(folder)" }
+        return "\(day)/\(folder)/\(batchFolder(now: now))"
     }
     public static let txtInvite = "inv"
     public static let txtHost = "h"

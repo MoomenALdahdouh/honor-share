@@ -1,6 +1,6 @@
-# HONOR Share — test matrix
+# Direct Share — test matrix
 
-Automated coverage is in `:protocol:test` (36 tests) and `swift run HonorShareCheck`. Physical LAN cases require a HONOR phone and a Mac on the same Wi-Fi.
+Automated coverage is in `:protocol:test` (36 tests) and `swift run HonorShareCheck`. Physical LAN cases need an Android phone and a Mac on the same Wi-Fi.
 
 ## Automated (this repo)
 
@@ -24,7 +24,7 @@ Automated coverage is in `:protocol:test` (36 tests) and `swift run HonorShareCh
 | Case | How | Result |
 | --- | --- | --- |
 | Drop files on Mac → HS2 QR → phone Receive/Scan | physical | NOT RUN this session |
-| Finder “Send with HONOR Share” | Services menu after install | NOT RUN this session |
+| Finder “Send with Direct Share” | Services menu after install | NOT RUN this session |
 | One file / mixed types / Unicode names | physical | NOT RUN this session |
 | Duplicate package (comparison skip) | physical | NOT RUN this session |
 | Cancel / disconnect / retry | physical | NOT RUN this session |

@@ -42,11 +42,11 @@ struct FileBrowserView: View {
             HStack {
                 Text("Files").font(.title2.weight(.semibold))
                 Spacer()
-                Text("\(filtered.count) files").foregroundStyle(.secondary)
+                Text("\(filtered.count) \(filtered.count == 1 ? "file" : "files")").foregroundStyle(.secondary)
             }
             if !folder.isEmpty && !searching {
                 HStack(spacing: 6) {
-                    Button("HONOR Share") { folder = "" }.buttonStyle(.link)
+                    Button("Files") { folder = "" }.buttonStyle(.link)
                     ForEach(crumbs, id: \.path) { crumb in
                         Text("/").foregroundStyle(.secondary)
                         Button(crumb.name) { folder = crumb.path }.buttonStyle(.link)
@@ -62,6 +62,12 @@ struct FileBrowserView: View {
                         if item == .sent { folder = "" }
                     }
                 }
+                Spacer()
+                ForEach([FileFilter.photos, .videos, .documents], id: \.self) { item in
+                    FilterPill(title: item.title, selected: filter == item) {
+                        filter = item
+                    }
+                }
             }
             if folders.isEmpty && filesHere.isEmpty {
                 VStack(spacing: 8) {
@@ -73,6 +79,10 @@ struct FileBrowserView: View {
                     Text("Send or receive files and they will show up here so you can open them instantly.")
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+                        .frame(maxWidth: 360)
+                    Button("Send files") { model.showFiles = false }
+                        .buttonStyle(.borderedProminent)
+                        .tint(HonorColor.blue)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -120,7 +130,7 @@ private struct FilterPill: View {
                 .font(.callout.weight(.medium))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(selected ? Color.accentColor : Color(nsColor: .controlBackgroundColor), in: Capsule())
+                .background(selected ? HonorColor.blue : Color(nsColor: .controlBackgroundColor), in: Capsule())
                 .foregroundStyle(selected ? Color.white : Color.primary)
         }
         .buttonStyle(.plain)
@@ -163,7 +173,7 @@ private struct FileRow: View {
                     .lineLimit(1)
             }
             Spacer()
-            Button("Show") { model.revealInFinder(file) }
+            Button("Show in Finder") { model.revealInFinder(file) }
                 .buttonStyle(.borderless)
         }
         .padding(.vertical, 4)

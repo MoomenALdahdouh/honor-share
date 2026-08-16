@@ -2,7 +2,7 @@
 
 ## Mac not appearing
 
-Open HONOR Share on the Mac and leave it running. Both devices must be on the same Wi-Fi (a phone hotspot counts). Tap Retry. Wait a few seconds for Bonjour.
+Open Direct Share on the Mac and leave it running. Both devices must be on the same Wi-Fi (a phone hotspot counts). Tap Retry. Wait a few seconds for Bonjour.
 
 ## Wi-Fi disabled
 
@@ -14,7 +14,7 @@ Bluetooth is not required. This product uses the local network, not Nearby Conne
 
 ## Local Network denied (Mac)
 
-macOS will ask for Local Network. If the list stays empty, open System Settings → Privacy & Security → Local Network → enable HONOR Share.
+macOS will ask for Local Network. If the list stays empty, open System Settings → Privacy & Security → Local Network → enable Direct Share.
 
 ## Android permissions denied
 
@@ -36,18 +36,22 @@ Do not tap Connect. Cancel and reconnect next to each other. A mismatch means yo
 
 Create a new code on the sending device. The files do not need to be selected again if the package is still open.
 
-## This isn’t a HONOR Share transfer code
+## This isn’t a Direct Share transfer code
 
-The camera read a QR that is not HS1 or HS2. Point at the code inside HONOR Share.
+The camera read a QR that is not HS1 or HS2. Point at the code inside Direct Share.
 
 ## Numeric code not found
 
-Open HONOR Share on the phone with Ready to send, same Wi-Fi, then enter the six digits shown there.
+Open Direct Share on the phone with Send, same Wi-Fi, then enter the six digits shown there.
 
 ## Files verify failed
 
 The incomplete file is not kept. Retry. If it keeps failing, stay on the same network and avoid VPN.
 
-## Share sheet does not list HONOR Share
+## Share sheet does not list Direct Share
 
 Reinstall the app. The share target accepts `*/*`.
+
+## Finder does not show Send with Direct Share
+
+Install the Mac app with `./macos/packaging/package-macos.sh` (that copies Direct Share to `/Applications` and the Finder service to `~/Library/Services`). Then right-click a file → **Services → Send with Direct Share**. If the menu is stale, close it and right-click again.

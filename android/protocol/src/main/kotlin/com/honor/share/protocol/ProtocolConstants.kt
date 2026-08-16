@@ -32,10 +32,15 @@ object ProtocolConstants {
     const val PARTIAL_SUFFIX: String = ".honor-share-partial"
     const val DEFAULT_RECEIVE_FOLDER: String = "HONOR Share"
 
-    fun receiveSubfolder(peerName: String, nowMs: Long = System.currentTimeMillis()): String {
+    fun receiveSubfolder(peerName: String, nowMs: Long = System.currentTimeMillis(), fileCount: Int = 1): String {
         val day = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date(nowMs))
         val cleaned = peerName.replace("/", "-").replace(":", "-").trim()
         val folder = cleaned.ifBlank { "Device" }.take(40)
-        return "$day/$folder"
+        val base = "$day/$folder"
+        if (fileCount <= 1) return base
+        return "$base/${batchFolder(nowMs)}"
     }
+
+    fun batchFolder(nowMs: Long = System.currentTimeMillis()): String =
+        java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US).format(java.util.Date(nowMs))
 }

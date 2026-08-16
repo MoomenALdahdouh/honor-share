@@ -31,6 +31,7 @@ macos/*.xcworkspace/xcuserdata/
 DerivedData/
 HONORShare.app/
 *.app
+macos/packaging/AppIcon.iconset/
 
 # Secrets
 *.jks

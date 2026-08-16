@@ -256,6 +256,8 @@ class ReceiveFolderTest {
         val path = ProtocolConstants.receiveSubfolder("Honor 200", 1_787_000_000_000L)
         assertTrue(path.endsWith("/Honor 200"))
         assertTrue(path.matches(Regex("""\d{4}-\d{2}-\d{2}/Honor 200""")))
+        val many = ProtocolConstants.receiveSubfolder("Honor 200", 1_787_000_000_000L, fileCount = 3)
+        assertTrue(many.matches(Regex("""\d{4}-\d{2}-\d{2}/Honor 200/\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}""")))
         assertFalse(ProtocolConstants.receiveSubfolder("a/b").contains("a/b"))
         assertEquals("Device", ProtocolConstants.receiveSubfolder("  ").substringAfter('/'))
     }

@@ -182,7 +182,7 @@ public final class AppModel: ObservableObject {
             return
         }
         guard let link = ShareLink.parse(raw) else {
-            errorMessage = String(localized: "This isn’t a HONOR Share transfer code.")
+            errorMessage = String(localized: "This isn’t a Direct Share transfer code.")
             return
         }
         send(urls: urls, link: link)
@@ -275,7 +275,7 @@ public final class AppModel: ObservableObject {
         }
         if generation != lookupGeneration { return }
         lookingForCode = false
-        errorMessage = String(localized: "No transfer found for that code. Keep HONOR Share open on your phone, same Wi-Fi, and try again.")
+        errorMessage = String(localized: "No transfer found for that code. Keep Direct Share open on your phone, same Wi-Fi, and try again.")
     }
 
     private func matchesInvite(_ device: NearbyDevice, code: String) -> Bool {
@@ -357,6 +357,7 @@ public final class AppModel: ObservableObject {
     }
 
     public func refreshLibrary() {
+        _ = FileLibrary.recoverCompletedPartials(destination: destination, records: history.files)
         library = FileLibrary.scan(destination: destination, records: history.files)
     }
 
@@ -726,7 +727,7 @@ public final class AppModel: ObservableObject {
         receiving = true
         let envelope = try await session.receiveControl()
         let request = try TransferRequest.from(envelope.payload)
-        let subfolder = ProtocolConstants.receiveSubfolder(peerName: peer.name)
+        let subfolder = ProtocolConstants.receiveSubfolder(peerName: peer.name, fileCount: request.files.count)
         let factory = DirectorySinkFactory(directory: destination, subfolder: subfolder)
         let packageFiles = request.files.map {
             PackageFile(fileId: $0.fileId, name: $0.name, relativePath: $0.relativePath, size: $0.size, mimeType: $0.mimeType, modifiedAt: $0.modifiedAt, hash: $0.sha256)
@@ -767,7 +768,8 @@ public final class AppModel: ObservableObject {
                     let start = try FileStart.from(control.payload)
                     let sink = try factory.open(file: FileMeta(fileId: start.fileId, name: start.name, size: start.size, mimeType: start.mimeType), offset: start.offset)
                     let digest = IncrementalSHA256()
-                    while sink.bytesWritten < start.size {
+                    var committed = false
+                    while !committed {
                         switch try await session.receive() {
                         case .binary(_, _, let chunk):
                             digest.update(chunk)
@@ -776,12 +778,17 @@ public final class AppModel: ObservableObject {
                             progress = TransferProgress(transferId: request.transferId, filesCompleted: completed, filesTotal: request.files.count, bytesTransferred: overall, bytesTotal: request.totalBytes, currentName: start.name, currentBytes: sink.bytesWritten, currentSize: start.size, bytesPerSecond: estimator.onProgress(bytesTransferred: overall, nowMs: Int64(Date().timeIntervalSince1970 * 1000)), etaSeconds: estimator.etaSeconds(remaining: request.totalBytes - overall), state: .transferring)
                         case .control(let completeData):
                             let complete = try ProtocolJSON.decode(completeData)
+                            if complete.type != MessageType.fileComplete.rawValue {
+                                sink.abort()
+                                throw ProtocolError(.protocolViolation, "expected FILE_COMPLETE")
+                            }
                             let sha = complete.payload["sha256"]?.string ?? ""
                             if !Checksums.equalsHex(sha, digest.hex()) {
                                 sink.abort()
                                 throw ProtocolError(.checksumMismatch, "hash mismatch")
                             }
                             try sink.commit(expectedSha256: sha)
+                            committed = true
                         }
                     }
                     completed += 1
@@ -862,10 +869,10 @@ public final class AppModel: ObservableObject {
             case .authFailed: return String(localized: "Could not confirm the connection. Make sure the codes match.")
             case .diskFull: return String(localized: "There is not enough storage on this device.")
             case .checksumMismatch: return String(localized: "File verification failed. The file may have been corrupted during transfer.")
-            case .unsupportedVersion: return String(localized: "This version of HONOR Share cannot talk to the other device. Update both apps.")
+            case .unsupportedVersion: return String(localized: "This version of Direct Share cannot talk to the other device. Update both apps.")
             case .cancelled, .userRejected: return String(localized: "Transfer cancelled")
             case .invitationExpired: return String(localized: "This transfer has expired.")
-            case .invalidInvitation: return String(localized: "This isn’t a HONOR Share transfer code.")
+            case .invalidInvitation: return String(localized: "This isn’t a Direct Share transfer code.")
             case .rateLimited: return String(localized: "Too many attempts. Try again later.")
             case .timeout: return String(localized: "Could not reach your phone. Keep Ready to send open, stay on the same Wi-Fi, and try again.")
             default: return String(localized: "Connection lost. Make sure both devices are nearby and try again.")

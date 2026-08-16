@@ -12,7 +12,7 @@ class HomeScreenTest {
 
     @Test
     fun homeShowsPrimaryActions() {
-        rule.onNodeWithText("HONOR Share").assertIsDisplayed()
+        rule.onNodeWithText("Direct Share").assertIsDisplayed()
         rule.onNodeWithText("Send files").assertIsDisplayed()
         rule.onNodeWithText("Receive").assertIsDisplayed()
     }

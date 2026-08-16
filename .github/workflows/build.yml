@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew :app:assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Direct-Share-Android
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Mac app
+        run: ./macos/packaging/package-macos.sh
+      - name: Zip app
+        run: ditto -c -k --keepParent "macos/Direct Share.app" Direct-Share-macOS.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Direct-Share-macOS
+          path: Direct-Share-macOS.zip

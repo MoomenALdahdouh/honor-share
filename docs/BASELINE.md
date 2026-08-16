@@ -1,5 +1,7 @@
 # HONOR Share — pre-change baseline
 
+Historical snapshot from 2026-08-15, before the Transfer Package work. The shipping product name is now **Direct Share**. This file is not a current install guide — use the [README](../README.md).
+
 Recorded: 2026-08-15  
 Scope: repository audit + existing tests/builds **before** Primary Transfer Package work.
 

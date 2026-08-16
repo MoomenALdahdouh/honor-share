@@ -194,6 +194,40 @@ public final class HistoryStore: ObservableObject {
 }
 
 public enum FileLibrary {
+    @discardableResult
+    public static func recoverCompletedPartials(destination: URL, records: [SharedFileRecord]) -> Int {
+        let suffix = ProtocolConstants.partialSuffix
+        guard let enumerator = FileManager.default.enumerator(
+            at: destination,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: []
+        ) else { return 0 }
+        var recovered = 0
+        for case let url as URL in enumerator {
+            let name = url.lastPathComponent
+            guard name.hasPrefix("."), name.contains(suffix) else { continue }
+            var finalName = String(name.dropFirst())
+            if finalName.hasSuffix(suffix) {
+                finalName = String(finalName.dropLast(suffix.count))
+            }
+            guard !finalName.isEmpty else { continue }
+            let final = url.deletingLastPathComponent().appendingPathComponent(finalName)
+            if FileManager.default.fileExists(atPath: final.path) { continue }
+            let size = Int64((try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
+            let match = records.first {
+                $0.direction == "RECEIVED" && ($0.path == final.path || ($0.name == finalName && $0.size == size))
+            }
+            guard let match, match.size == size, size > 0 else { continue }
+            do {
+                try FileManager.default.moveItem(at: url, to: final)
+                recovered += 1
+            } catch {
+                continue
+            }
+        }
+        return recovered
+    }
+
     public static func scan(destination: URL, records: [SharedFileRecord]) -> [LibraryFile] {
         var result: [LibraryFile] = []
         let destPath = destination.standardizedFileURL.path
@@ -218,6 +252,25 @@ public enum FileLibrary {
                 kind: fileKind(name: url.lastPathComponent, mime: match?.mime ?? ""),
                 bookmark: match?.bookmark,
                 relativePath: relative
+            ))
+        }
+        for record in records where record.direction == "RECEIVED" {
+            if result.contains(where: { $0.id == record.id || $0.url.path == record.path }) { continue }
+            let url = URL(fileURLWithPath: record.path)
+            guard FileManager.default.fileExists(atPath: url.path) else { continue }
+            let values = try? url.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey])
+            result.append(LibraryFile(
+                id: record.id,
+                name: record.name,
+                url: url,
+                size: record.size,
+                modified: values?.contentModificationDate ?? Date(timeIntervalSince1970: record.createdAt),
+                direction: "RECEIVED",
+                deviceName: record.deviceName,
+                mime: record.mime,
+                kind: fileKind(name: record.name, mime: record.mime),
+                bookmark: record.bookmark,
+                relativePath: relativePath(of: url, under: destPath)
             ))
         }
         for record in records where record.direction == "SENT" {

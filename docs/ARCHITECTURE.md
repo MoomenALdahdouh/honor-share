@@ -1,6 +1,6 @@
 # Architecture
 
-HONOR Share is two native apps and one versioned local protocol. There is no backend.
+Direct Share is two native apps and one versioned local protocol. There is no backend. The user-facing name is Direct Share; on-disk folders, Bonjour, and TLS still use HONOR Share identifiers so existing devices keep working.
 
 ```text
 Android (Compose)                 macOS (SwiftUI)
@@ -61,7 +61,7 @@ Nearby Connections is Android-only (Bluetooth / Wi-Fi Direct). A Mac cannot join
 ## Share sheet and drag-and-drop
 
 - Android: `ACTION_SEND` / `ACTION_SEND_MULTIPLE` → `ShareActivity` → selected files → **Ready to send** builds a Transfer Package (numeric code). Nearby Mac list is fallback.
-- macOS: drop file URLs (or Finder Services **Send with HONOR Share**) → same Transfer Package → HS2 QR + numeric code. Receive: enter the phone’s 6-digit code.
+- macOS: drop file URLs (or Finder Services **Send with Direct Share**) → same Transfer Package → HS2 QR + numeric code. Receive: enter the phone’s 6-digit code.
 
 ## Transfer Package (primary)
 

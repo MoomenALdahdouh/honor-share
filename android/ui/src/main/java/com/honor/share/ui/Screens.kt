@@ -1,5 +1,8 @@
 package com.honor.share.ui
 
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -22,6 +25,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CallReceived
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.IosShare
@@ -44,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
@@ -59,8 +64,10 @@ import java.util.Date
 @Composable
 fun HonorShareRoot(model: ShareViewModel, onOpenSettings: () -> Unit) {
     HonorTheme {
+        val screen = model.screen.collectAsState().value
+        BackHandler(enabled = screen != Screen.HOME) { model.onSystemBack() }
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            when (model.screen.collectAsState().value) {
+            when (screen) {
                 Screen.HOME -> HomeScreen(model)
                 Screen.SELECTED -> SelectedScreen(model)
                 Screen.DEVICES -> DevicesScreen(model, onOpenSettings)
@@ -82,6 +89,7 @@ fun HonorShareRoot(model: ShareViewModel, onOpenSettings: () -> Unit) {
 
 @Composable
 private fun HomeScreen(model: ShareViewModel) {
+    val context = LocalContext.current
     val files by model.libraryFiles.collectAsState()
     LaunchedEffect(Unit) { model.refreshLibrary() }
     Column(Modifier.honorScreen()) {
@@ -123,7 +131,28 @@ private fun HomeScreen(model: ShareViewModel) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        Spacer(Modifier.height(16.dp))
+        Text(
+            stringResource(R.string.privacy_line),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+            stringResource(R.string.buy_me_a_coffee),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 4.dp)
+                .clickable {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://ko-fi.com/moomenaldahdouh")))
+                },
+        )
     }
 }
 
@@ -170,7 +199,7 @@ private fun SelectedScreen(model: ShareViewModel) {
             StepLabel(1, 2, stringResource(R.string.step_choose_label))
             InstructionCard(stringResource(R.string.send_portal_body))
             Spacer(Modifier.height(28.dp))
-            HonorPrimaryButton(stringResource(R.string.choose_photos)) { picker.launch(arrayOf("image/*", "video/*", "*/*")) }
+            HonorPrimaryButton(stringResource(R.string.choose_files)) { picker.launch(arrayOf("*/*")) }
         } else {
             StepLabel(1, 2, stringResource(R.string.selected))
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -207,11 +236,11 @@ private fun SelectedScreen(model: ShareViewModel) {
                 }
             }
             BottomActions {
-                TextButton(onClick = { picker.launch(arrayOf("image/*", "video/*", "*/*")) }) { Text(stringResource(R.string.add_files)) }
+                TextButton(onClick = { picker.launch(arrayOf("*/*")) }) { Text(stringResource(R.string.add_files)) }
                 HonorPrimaryButton(
                     text = stringResource(R.string.continue_show_code),
-                    onClick = { model.preparePackageAndWait() },
                     enabled = !preparing,
+                    onClick = { model.preparePackageAndWait() },
                 )
             }
         }
@@ -228,20 +257,24 @@ private fun DevicesScreen(model: ShareViewModel, onOpenSettings: () -> Unit) {
         }
     }
     Column(Modifier.honorScreen()) {
-        HonorTopBar(stringResource(R.string.choose_device), onBack = { model.backHome() })
-        Text(stringResource(R.string.looking_for_mac), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        TextButton(onClick = { model.retryDiscovery() }) { Text(stringResource(R.string.retry)) }
-        Spacer(Modifier.height(12.dp))
+        HonorTopBar(stringResource(R.string.choose_device), onBack = { model.devicesBack() })
         if (devices.isEmpty()) {
-            Spacer(Modifier.height(48.dp))
-            Text(stringResource(R.string.looking_for_mac), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.weight(1f))
+            Text(stringResource(R.string.looking_for_mac), style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(16.dp))
+            Text(stringResource(R.string.no_mac_found), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
             Text(stringResource(R.string.no_mac_found_body), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(12.dp))
             Text(stringResource(R.string.not_airdrop), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(16.dp))
-            TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.open_settings)) }
+            Spacer(Modifier.height(24.dp))
+            HonorPrimaryButton(stringResource(R.string.retry), onClick = { model.retryDiscovery() })
+            TextButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.open_settings)) }
+            Spacer(Modifier.weight(1f))
         } else {
+            Text(stringResource(R.string.looking_for_mac), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick = { model.retryDiscovery() }) { Text(stringResource(R.string.retry)) }
+            Spacer(Modifier.height(8.dp))
             Text(stringResource(R.string.tap_mac_to_send), style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(12.dp))
             devices.forEach { device ->
@@ -276,17 +309,23 @@ private fun PairingScreen(model: ShareViewModel) {
     Column(Modifier.honorScreen(), horizontalAlignment = Alignment.CenterHorizontally) {
         HonorTopBar(stringResource(R.string.connect), onBack = { model.confirmPairing(false) })
         Spacer(Modifier.height(24.dp))
-        Text(stringResource(R.string.connect_title, prompt?.peerName ?: ""), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(24.dp))
-        Text(stringResource(R.string.code), style = MaterialTheme.typography.bodyMedium)
-        Text(prompt?.display ?: "—", style = MaterialTheme.typography.headlineLarge)
-        Spacer(Modifier.height(12.dp))
-        Text(stringResource(R.string.code_match), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
-        Spacer(Modifier.weight(1f))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            HonorPrimaryButton(stringResource(R.string.cancel), modifier = Modifier.weight(1f), onClick = { model.confirmPairing(false) })
-            Spacer(Modifier.size(12.dp))
-            HonorPrimaryButton(stringResource(R.string.connect), modifier = Modifier.weight(1f), onClick = { model.confirmPairing(true) })
+        if (prompt == null) {
+            Spacer(Modifier.weight(1f))
+            CircularProgressIndicator()
+            Spacer(Modifier.height(16.dp))
+            Text(stringResource(R.string.connecting), style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+            Spacer(Modifier.weight(1f))
+            HonorSecondaryButton(stringResource(R.string.dont_connect), onClick = { model.confirmPairing(false) })
+        } else {
+            Text(stringResource(R.string.connect_title, prompt.peerName), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+            Spacer(Modifier.height(24.dp))
+            Text(stringResource(R.string.code), style = MaterialTheme.typography.bodyMedium)
+            Text(prompt.display, style = MaterialTheme.typography.headlineLarge)
+            Spacer(Modifier.height(12.dp))
+            Text(stringResource(R.string.code_match), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+            Spacer(Modifier.weight(1f))
+            HonorSecondaryButton(stringResource(R.string.dont_connect), onClick = { model.confirmPairing(false) })
+            HonorPrimaryButton(stringResource(R.string.connect), onClick = { model.confirmPairing(true) })
         }
     }
 }
@@ -343,20 +382,22 @@ private fun TransferScreen(model: ShareViewModel) {
                 if (receiving && lastSaved.isNotBlank()) {
                     Text(stringResource(R.string.saved_to, lastSaved), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
-                    HonorPrimaryButton(stringResource(R.string.open_folder), onClick = { model.openSavedFolder() })
-                    Spacer(Modifier.height(8.dp))
                 }
-                HonorPrimaryButton(stringResource(R.string.view_files), onClick = { model.openFiles() })
-                Spacer(Modifier.height(8.dp))
-                HonorPrimaryButton(
-                    if (receiving) stringResource(R.string.receive_more) else stringResource(R.string.send_more),
+                HonorPrimaryButton(stringResource(R.string.done), onClick = { model.backHome() })
+                HonorSecondaryButton(stringResource(R.string.view_files), onClick = { model.openFiles() })
+                if (receiving && lastSaved.isNotBlank()) {
+                    TextButton(onClick = { model.openSavedFolder() }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.open_folder))
+                    }
+                }
+                TextButton(
                     onClick = { if (receiving) model.openReceive() else model.openSend() },
-                )
-                Spacer(Modifier.height(8.dp))
-            }
-            HonorPrimaryButton(stringResource(R.string.done), onClick = { model.backHome() })
-            if (error != null) {
-                Spacer(Modifier.height(8.dp))
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(if (receiving) stringResource(R.string.receive_more) else stringResource(R.string.send_more))
+                }
+            } else {
+                HonorPrimaryButton(stringResource(R.string.done), onClick = { model.backHome() })
                 TextButton(onClick = { if (receiving) model.openReceive() else model.openSend() }, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.retry))
                 }
@@ -471,6 +512,10 @@ private fun PackageWaitScreen(model: ShareViewModel) {
             }
             Spacer(Modifier.height(20.dp))
             HonorPrimaryButton(stringResource(R.string.create_new_code), onClick = { model.regenerateInvitation() })
+            Spacer(Modifier.height(8.dp))
+            TextButton(onClick = { model.chooseMac() }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.cant_connect))
+            }
         }
     }
 }
@@ -479,6 +524,9 @@ private fun PackageWaitScreen(model: ShareViewModel) {
 private fun IncomingScreen(model: ShareViewModel) {
     val request = model.incoming.collectAsState().value
     val comparison = request?.comparison
+    var conflictChoice by remember {
+        mutableStateOf(com.honor.share.protocol.ConflictAction.KEEP_BOTH)
+    }
     Column(Modifier.honorScreen()) {
         HonorTopBar(stringResource(R.string.incoming_files), onBack = { model.confirmIncoming(false) })
         Spacer(Modifier.height(12.dp))
@@ -501,19 +549,48 @@ private fun IncomingScreen(model: ShareViewModel) {
         )
         Spacer(Modifier.weight(1f))
         if (comparison != null && comparison.conflicts.isNotEmpty()) {
+            fun applyConflicts(action: com.honor.share.protocol.ConflictAction) {
+                conflictChoice = action
+                request?.let { incoming ->
+                    comparison.conflicts.forEach { incoming.resolutions[it.incoming.fileId] = action }
+                }
+            }
+            Text(stringResource(R.string.conflict_prompt), style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(8.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                TextButton(onClick = {
-                    comparison.conflicts.forEach { request.resolutions[it.incoming.fileId] = com.honor.share.protocol.ConflictAction.KEEP_BOTH }
-                }) { Text(stringResource(R.string.keep_all)) }
-                TextButton(onClick = {
-                    comparison.conflicts.forEach { request.resolutions[it.incoming.fileId] = com.honor.share.protocol.ConflictAction.REPLACE }
-                }) { Text(stringResource(R.string.replace_all)) }
-                TextButton(onClick = {
-                    comparison.conflicts.forEach { request.resolutions[it.incoming.fileId] = com.honor.share.protocol.ConflictAction.SKIP }
-                }) { Text(stringResource(R.string.skip_all)) }
+                TextButton(onClick = { applyConflicts(com.honor.share.protocol.ConflictAction.KEEP_BOTH) }) {
+                    Text(
+                        stringResource(R.string.keep_all),
+                        color = if (conflictChoice == com.honor.share.protocol.ConflictAction.KEEP_BOTH) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
+                TextButton(onClick = { applyConflicts(com.honor.share.protocol.ConflictAction.REPLACE) }) {
+                    Text(
+                        stringResource(R.string.replace_all),
+                        color = if (conflictChoice == com.honor.share.protocol.ConflictAction.REPLACE) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
+                TextButton(onClick = { applyConflicts(com.honor.share.protocol.ConflictAction.SKIP) }) {
+                    Text(
+                        stringResource(R.string.skip_all),
+                        color = if (conflictChoice == com.honor.share.protocol.ConflictAction.SKIP) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = { model.confirmIncoming(false) }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.decline)) }
             HonorPrimaryButton(stringResource(R.string.receive), modifier = Modifier.weight(1f), onClick = { model.confirmIncoming(true) })
         }
@@ -524,6 +601,8 @@ private fun IncomingScreen(model: ShareViewModel) {
 private fun PermissionScreen(onOpenSettings: () -> Unit, onBack: () -> Unit) {
     Column(Modifier.honorScreen(), horizontalAlignment = Alignment.CenterHorizontally) {
         HonorTopBar(stringResource(R.string.nearby_permission_title), onBack = onBack)
+        Spacer(Modifier.height(16.dp))
+        Text(stringResource(R.string.nearby_permission_body), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
         Spacer(Modifier.height(16.dp))
         HonorPrimaryButton(stringResource(R.string.open_settings), onClick = onOpenSettings)
     }

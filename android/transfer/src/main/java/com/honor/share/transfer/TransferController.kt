@@ -242,6 +242,7 @@ class TransferController(
         val request = transfer.receive(
             sinkFactory = downloads,
             accept = { payload ->
+                downloads.subfolder = ProtocolConstants.receiveSubfolder(peer.name, fileCount = payload.files.size)
                 val incoming = payload.files.map { meta ->
                     PackageFile(
                         fileId = meta.fileId,

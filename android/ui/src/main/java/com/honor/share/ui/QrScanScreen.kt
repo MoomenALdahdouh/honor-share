@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -66,7 +65,7 @@ fun QrScanScreen(model: ShareViewModel, onOpenSettings: () -> Unit) {
         onDispose { }
     }
     Column(Modifier.honorScreen()) {
-        HonorTopBar(stringResource(R.string.scan_qr), onBack = { model.backHome() })
+        HonorTopBar(stringResource(R.string.receive), onBack = { model.backHome() })
         Text(stringResource(R.string.scan_mac_first), style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         val feedback = model.scanFeedback.collectAsState().value
         if (feedback != null) {
@@ -129,20 +128,28 @@ fun QrScanScreen(model: ShareViewModel, onOpenSettings: () -> Unit) {
         Spacer(Modifier.height(8.dp))
         var showCode by remember { mutableStateOf(false) }
         var typedCode by remember { mutableStateOf("") }
+        val receiving by model.receiving.collectAsState()
         if (showCode) {
             OutlinedTextField(
                 value = typedCode,
-                onValueChange = { typedCode = it.filter { ch -> ch.isDigit() }.take(6) },
+                onValueChange = { raw ->
+                    val next = raw.filter { ch -> ch.isDigit() }.take(6)
+                    typedCode = next
+                    if (next.length == 6) model.connectWithCode(next)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                enabled = !receiving,
                 placeholder = { Text(stringResource(R.string.enter_code)) },
             )
             Spacer(Modifier.height(8.dp))
-            HonorPrimaryButton(stringResource(R.string.connect), enabled = typedCode.length == 6, onClick = { model.connectWithCode(typedCode) })
+            HonorPrimaryButton(
+                text = stringResource(R.string.connect),
+                enabled = typedCode.length == 6 && !receiving,
+                onClick = { model.connectWithCode(typedCode) },
+            )
         } else {
-            TextButton(onClick = { showCode = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.have_a_code))
-            }
+            HonorSecondaryButton(stringResource(R.string.have_a_code), onClick = { showCode = true })
         }
     }
 }

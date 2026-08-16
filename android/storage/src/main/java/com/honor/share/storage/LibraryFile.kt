@@ -71,7 +71,7 @@ fun List<LibraryFile>.grouped(group: FileGroupBy, dateLabel: (Long) -> String, t
     val buckets = when (group) {
         FileGroupBy.DATE -> groupBy { dateLabel(it.createdAt) }
         FileGroupBy.TYPE -> groupBy { typeLabel(it.kind) }
-        FileGroupBy.DEVICE -> groupBy { it.deviceName.ifBlank { "HONOR Share" } }
+        FileGroupBy.DEVICE -> groupBy { it.deviceName.ifBlank { "Direct Share" } }
         FileGroupBy.NONE -> emptyMap()
     }
     return buckets.map { (title, files) -> FileSection(title, files) }

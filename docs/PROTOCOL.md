@@ -1,5 +1,7 @@
 # HONOR Share Protocol
 
+Product name: **Direct Share**. Wire identifiers (`_honor-share._tcp`, TLS `CN=HONOR Share`) stay as written below so Android and Mac keep talking.
+
 Version: **1**  
 Service type: `_honor-share._tcp`  
 Transport: TLS 1.3 (fallback TLS 1.2) over TCP on the local network.

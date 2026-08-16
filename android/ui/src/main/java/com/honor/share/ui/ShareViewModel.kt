@@ -212,6 +212,25 @@ class ShareViewModel(
         }
     }
 
+    fun devicesBack() {
+        when {
+            currentPackage.value != null -> screen.value = Screen.PACKAGE
+            selected.value.isNotEmpty() -> screen.value = Screen.SELECTED
+            else -> backHome()
+        }
+    }
+
+    fun onSystemBack() {
+        when (screen.value) {
+            Screen.HOME -> Unit
+            Screen.FILES -> libraryBack()
+            Screen.PAIRING -> confirmPairing(false)
+            Screen.INCOMING -> confirmIncoming(false)
+            Screen.DEVICES -> devicesBack()
+            else -> backHome()
+        }
+    }
+
     fun deleteFile(file: LibraryFile) {
         viewModelScope.launch(Dispatchers.IO) {
             val app = getApplication<Application>()
@@ -324,12 +343,16 @@ class ShareViewModel(
         }
     }
 
+    private var codeLookupActive = false
+
     fun connectWithCode(raw: String) {
         val digits = raw.filter { it.isDigit() }
         if (digits.length != 6) {
             scanFeedback.value = R.string.error_invalid_invitation
             return
         }
+        if (codeLookupActive) return
+        codeLookupActive = true
         viewModelScope.launch {
             receiving.value = true
             discovery.startBrowse()
@@ -347,6 +370,7 @@ class ShareViewModel(
             if (found == null) {
                 scanFeedback.value = R.string.error_no_device
                 receiving.value = false
+                codeLookupActive = false
                 return@launch
             }
             scanFeedback.value = R.string.found_transfer
@@ -357,6 +381,8 @@ class ShareViewModel(
                 screen.value = Screen.TRANSFER
             } catch (_: Exception) {
                 screen.value = Screen.TRANSFER
+            } finally {
+                codeLookupActive = false
             }
         }
     }
@@ -400,7 +426,7 @@ class ShareViewModel(
     }
 
     fun chooseMac() {
-        if (selected.value.isEmpty()) return
+        if (selected.value.isEmpty() && currentPackage.value == null) return
         if (!ensureReady()) return
         discovery.startBrowse()
         discovery.startAdvertising(listenPort())
